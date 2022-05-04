@@ -65,7 +65,6 @@ public class SpotifyHdlr {
 
 		System.out.println("Alot Happened...");
 		MainWindow.initUser();
-		MainWindow.updateGuiUser();
 		MainWindow.isSpringOn(false);
 		
 	}
