@@ -23,6 +23,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.FormData;
@@ -49,9 +50,10 @@ public class MainWindow {
 	static Color defaultColor = new Color(30, 30, 30);
 	static Color btnColor = new Color(40, 40, 40);
 	static Button btnViewPlaylists;
+	static int imgAndBarScale = 100;
 	private static Table playlistsTable;
 	static ArrayList<PlaylistObj> playlists = new ArrayList<PlaylistObj>();
-	
+
 	/**
 	 * @wbp.parser.entryPoint
 	 */
@@ -164,6 +166,13 @@ public class MainWindow {
 		playlistsTable.setBackground(new Color(50, 50, 50));
 		playlistsTable.setHeaderVisible(false);
 		playlistsTable.setForeground(txtColorLight);
+		
+		
+		//So windows and swt are not that happy together so we have to make this. Fantastic.
+		TableColumn tblclmnErrorColumn = new TableColumn(playlistsTable, SWT.NONE);
+		tblclmnErrorColumn.setWidth(0);
+		tblclmnErrorColumn.setText("Error Column");
+		tblclmnErrorColumn.setResizable(false);
 
 		TableColumn tblclmnPlaylists = new TableColumn(playlistsTable, SWT.NONE);
 		tblclmnPlaylists.setText("Playlists");
@@ -190,7 +199,7 @@ public class MainWindow {
 			public void widgetSelected(SelectionEvent e) {
 				tabFolder.setSelection(tbtmPlaylists);
 				buildPlaylists();
-				setPlaylistImages();
+
 				buildPlaylistTable();
 
 			}
@@ -200,7 +209,8 @@ public class MainWindow {
 		playlistsTable.addListener(SWT.MeasureItem, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
-				event.height = 100;
+				event.height = imgAndBarScale;
+				System.out.println(event);
 			}
 
 		});
@@ -216,28 +226,42 @@ public class MainWindow {
 
 	protected static void buildPlaylistTable() {
 		playlistsTable.removeAll();
+		
 		for (PlaylistObj p : playlists) {
 			TableItem playlist = new TableItem(playlistsTable, SWT.NONE);
-			playlist.setImage(p.getPlaylistImg());
-			playlist.setText(p.getPlaylistName());
-
+			playlist.setText(1, p.getPlaylistName());
 		}
-		
-		System.out.println(playlists.size());
-		
-	}
 
-	static void setPlaylistImages() {
+		System.out.println(playlists.size());
+	}
+	
+	
+	//It builds the table before it makes the imgs soooooo yeah. Multithreading is fun
+	public static void setPlaylistImg(Image p, String s) {
+		TableItem[] tia = playlistsTable.getItems();
 		
-		
+		//This single this is making me hate swt and windows god why.
+
+		for (int i = 0; i <= tia.length-1; i++) {
+			if (tia[i].getText(1).equalsIgnoreCase(s)) {
+				tia[i].setImage(1,p);
+				System.out.println("Added Image to:" + tia[i].getText(1));
+			}
+		}
 	}
 
 	static void buildPlaylists() {
 		playlists.clear();
 		for (PlaylistSimplified p : user.getUsersPlaylistsList()) {
-			playlists.add(new PlaylistObj(p));
+			PlaylistObj po = new PlaylistObj(p, imgAndBarScale);
+			po.start();
+			playlists.add(po);
 		}
 		System.out.println(playlists.size());
+	}
+
+	public static void addPlaylist(PlaylistObj p) {
+		playlists.add(p);
 	}
 
 	public static void isSpringOn(Boolean b) {
@@ -266,6 +290,7 @@ public class MainWindow {
 		// inside the display and this is the only way it works. May use more or less
 		// who knows
 		Display.getDefault().asyncExec(new Runnable() {
+			@Override
 			public void run() {
 				userLoggedIn();
 			}
