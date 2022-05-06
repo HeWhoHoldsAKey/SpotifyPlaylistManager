@@ -9,7 +9,6 @@ import org.eclipse.swt.widgets.Shell;
 
 import com.spm.main.spring.AuthHandeling;
 
-import se.michaelthelin.spotify.model_objects.specification.Paging;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
 
 import com.spm.main.SpotifyHdlr;
@@ -166,9 +165,9 @@ public class MainWindow {
 		playlistsTable.setBackground(new Color(50, 50, 50));
 		playlistsTable.setHeaderVisible(false);
 		playlistsTable.setForeground(txtColorLight);
-		
-		
-		//So windows and swt are not that happy together so we have to make this. Fantastic.
+
+		// So windows and swt are not that happy together so we have to make this.
+		// Fantastic.
 		TableColumn tblclmnErrorColumn = new TableColumn(playlistsTable, SWT.NONE);
 		tblclmnErrorColumn.setWidth(0);
 		tblclmnErrorColumn.setText("Error Column");
@@ -199,9 +198,7 @@ public class MainWindow {
 			public void widgetSelected(SelectionEvent e) {
 				tabFolder.setSelection(tbtmPlaylists);
 				buildPlaylists();
-
 				buildPlaylistTable();
-
 			}
 		});
 
@@ -224,28 +221,42 @@ public class MainWindow {
 		}
 	}
 
-	protected static void buildPlaylistTable() {
+	public static void buildPlaylistTable() {
 		playlistsTable.removeAll();
-		
+
 		for (PlaylistObj p : playlists) {
 			TableItem playlist = new TableItem(playlistsTable, SWT.NONE);
+
+			playlist.setImage(1, p.getPlaylistImg());
 			playlist.setText(1, p.getPlaylistName());
 		}
 
 		System.out.println(playlists.size());
+
 	}
-	
-	
-	//It builds the table before it makes the imgs soooooo yeah. Multithreading is fun
+
+	// It builds the table before it makes the imgs soooooo yeah. Multithreading is
+	// fun
 	public static void setPlaylistImg(Image p, String s) {
 		TableItem[] tia = playlistsTable.getItems();
-		
-		//This single this is making me hate swt and windows god why.
 
-		for (int i = 0; i <= tia.length-1; i++) {
-			if (tia[i].getText(1).equalsIgnoreCase(s)) {
-				tia[i].setImage(1,p);
-				System.out.println("Added Image to:" + tia[i].getText(1));
+		// This single this is making me hate swt and windows god why.
+
+		for (TableItem t : tia) {
+			if (t.getText(1).equalsIgnoreCase(s)) {
+				int index = playlistsTable.indexOf(t);
+				String tmp = t.getText(1);
+				playlistsTable.remove(index);
+				TableItem nti = new TableItem(playlistsTable, SWT.NONE, index);
+				nti.setImage(1, p);
+				nti.setText(1, tmp);
+
+				System.out.println(nti.getText(1));
+				// playlistsTable.getColumn(1).pack();
+
+				// nti.dispose();
+				break;
+				// System.out.println("Added Image to:" + tia[i].getText(1));
 			}
 		}
 	}

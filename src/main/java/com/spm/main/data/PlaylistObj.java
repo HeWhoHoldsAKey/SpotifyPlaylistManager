@@ -8,8 +8,6 @@ import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-
 import javax.imageio.ImageIO;
 
 import org.apache.hc.core5.http.ParseException;
@@ -21,6 +19,7 @@ import org.eclipse.swt.widgets.Display;
 import com.spm.main.SpotifyHdlr;
 import com.spm.main.app.MainWindow;
 
+import net.coobird.thumbnailator.Thumbnails;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.specification.Image;
@@ -31,13 +30,13 @@ public class PlaylistObj extends Thread {
 	SpotifyApi sp = SpotifyHdlr.getSAPI();
 	PlaylistSimplified playlist;
 	Image[] playlistImagesApi;
-	static org.eclipse.swt.graphics.Image playlistImages;
+	org.eclipse.swt.graphics.Image playlistImages;
 	GetPlaylistCoverImageRequest getPlaylistCoverImageRequest;
 	int imgScale;
 
 	public PlaylistObj(PlaylistSimplified p, int s) {
 		this.playlist = p;
-		this.imgScale = s;
+		this.imgScale = s-5;
 		getPlaylistCoverImageRequest = sp.getPlaylistCoverImage(playlist.getId()).build();
 		try {
 			playlistImagesApi = getPlaylistCoverImageRequest.execute();
@@ -46,14 +45,13 @@ public class PlaylistObj extends Thread {
 			e.printStackTrace();
 		}
 
-		
 	}
 
 	public void run() {
-		
+
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
-				
+
 				Image i = playlistImagesApi[0];
 				// I dont wanna talk about it...
 				URL url = null;
@@ -66,6 +64,7 @@ public class PlaylistObj extends Thread {
 				}
 				try {
 					imgTemp = ImageIO.read(url);
+					imgTemp = Thumbnails.of(imgTemp).size(imgScale, imgScale).keepAspectRatio(false).asBufferedImage();
 
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -73,7 +72,7 @@ public class PlaylistObj extends Thread {
 					e.printStackTrace();
 
 				}
-				
+
 				System.out.println("Well it made it to here... on playlist:" + getPlaylistName());
 				org.eclipse.swt.graphics.Image imagesTemp = null;
 
@@ -134,7 +133,7 @@ public class PlaylistObj extends Thread {
 						PaletteData palette = new PaletteData(0x0000FF, 0x00FF00, 0xFF0000);
 						ImageData data = new ImageData(imgTemp.getWidth(), imgTemp.getHeight(),
 								colorModel.getPixelSize(), palette);
-						data = data.scaledTo(imgScale + 50, imgScale + 50);
+						// data = data.scaledTo(imgScale -50, imgScale - 50);
 						// This is valid because we are using a 3-byte Data model with no transparent
 						// pixels
 						data.transparentPixel = -1;
@@ -151,11 +150,15 @@ public class PlaylistObj extends Thread {
 					}
 
 				}
+
+				playlistImages = imagesTemp;
+
+				// MainWindow.buildPlaylistTable();
 				MainWindow.setPlaylistImg(playlistImages, getPlaylistName());
-				PlaylistObj.setSwtImg(imagesTemp);
+
 			}
 		});
-		
+
 	}
 
 	public String getPlaylistName() {
@@ -166,8 +169,8 @@ public class PlaylistObj extends Thread {
 		return playlistImages;
 	}
 
-	public static void setSwtImg(org.eclipse.swt.graphics.Image imagesTemp) {
-		playlistImages = imagesTemp;
+	public void setSwtImg(org.eclipse.swt.graphics.Image imagesTemp) {
+		this.playlistImages = imagesTemp;
 	}
 
 }
