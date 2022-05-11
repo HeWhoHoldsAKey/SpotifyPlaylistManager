@@ -37,9 +37,9 @@ public class UserObj {
 		return user.getDisplayName();
 	}
 	
-	public Paging<PlaylistSimplified> getUsersPlaylists() {
-		return playlists;
-	}
+//	public Paging<PlaylistSimplified> getUsersPlaylists() {
+//		return playlists;
+//	}
 	
 	public PlaylistSimplified[] getUsersPlaylistsList() {
 		return playlistsList;

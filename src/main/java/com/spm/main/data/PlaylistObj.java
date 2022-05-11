@@ -8,6 +8,7 @@ import java.awt.image.WritableRaster;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 
 import org.apache.hc.core5.http.ParseException;
@@ -23,8 +24,13 @@ import net.coobird.thumbnailator.Thumbnails;
 import se.michaelthelin.spotify.SpotifyApi;
 import se.michaelthelin.spotify.exceptions.SpotifyWebApiException;
 import se.michaelthelin.spotify.model_objects.specification.Image;
+import se.michaelthelin.spotify.model_objects.specification.Paging;
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.PlaylistTrack;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistCoverImageRequest;
+import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistsItemsRequest;
+import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 
 public class PlaylistObj extends Thread {
 	SpotifyApi sp = SpotifyHdlr.getSAPI();
@@ -32,14 +38,22 @@ public class PlaylistObj extends Thread {
 	Image[] playlistImagesApi;
 	org.eclipse.swt.graphics.Image playlistImages;
 	GetPlaylistCoverImageRequest getPlaylistCoverImageRequest;
+	GetPlaylistsItemsRequest getPlaylistItemsRequest;
+	GetTrackRequest getTrackRequest;
+	Paging<PlaylistTrack> playlistTrackPaging;
+	ArrayList<Track> playlistTracks = new ArrayList<Track>();
 	int imgScale;
+	boolean tracksLoaded = false;
+
+	TrackObj[] tracks;
 
 	public PlaylistObj(PlaylistSimplified p, int s) {
 		this.playlist = p;
-		this.imgScale = s-5;
-		getPlaylistCoverImageRequest = sp.getPlaylistCoverImage(playlist.getId()).build();
+		this.imgScale = s - 5;
+		this.getPlaylistCoverImageRequest = sp.getPlaylistCoverImage(playlist.getId()).build();
+
 		try {
-			playlistImagesApi = getPlaylistCoverImageRequest.execute();
+			this.playlistImagesApi = getPlaylistCoverImageRequest.execute();
 		} catch (ParseException | SpotifyWebApiException | IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -162,15 +176,48 @@ public class PlaylistObj extends Thread {
 	}
 
 	public String getPlaylistName() {
-		return playlist.getName();
+		return this.playlist.getName();
 	}
 
 	public org.eclipse.swt.graphics.Image getPlaylistImg() {
 		return playlistImages;
 	}
+	
+	public PlaylistObj getSelf() {
+		return this;
+	}
 
-	public void setSwtImg(org.eclipse.swt.graphics.Image imagesTemp) {
-		this.playlistImages = imagesTemp;
+	public void loadTracks() {
+		if (tracksLoaded) {
+			return;
+		} else {
+			try {
+				do {
+					this.playlistTrackPaging = sp.getPlaylistsItems(playlist.getId()).limit(50).build().execute();
+					for (PlaylistTrack pt : this.playlistTrackPaging.getItems()) {
+						playlistTracks.add(sp.getTrack(pt.getTrack().getId()).build().execute());
+					}
+					sp.getPlaylistsItems(playlist.getId())
+							.offset(this.playlistTrackPaging.getOffset() + this.playlistTrackPaging.getLimit());
+
+				} while (this.playlistTrackPaging.getNext() != null);
+
+				System.out.println(this.playlist.getName());
+			} catch (ParseException | SpotifyWebApiException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		}
+	}
+
+	public void reloadTracks() {
+		this.tracksLoaded = false;
+		loadTracks();
+	}
+
+	public ArrayList<Track> getTracks() {
+		return playlistTracks;
 	}
 
 }

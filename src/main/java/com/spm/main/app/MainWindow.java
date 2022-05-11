@@ -10,6 +10,7 @@ import org.eclipse.swt.widgets.Shell;
 import com.spm.main.spring.AuthHandeling;
 
 import se.michaelthelin.spotify.model_objects.specification.PlaylistSimplified;
+import se.michaelthelin.spotify.model_objects.specification.Track;
 
 import com.spm.main.SpotifyHdlr;
 import com.spm.main.data.PlaylistObj;
@@ -18,6 +19,7 @@ import com.spm.main.data.UserObj;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
@@ -52,9 +54,13 @@ public class MainWindow {
 	static int imgAndBarScale = 100;
 	private static Table playlistsTable;
 	static ArrayList<PlaylistObj> playlists = new ArrayList<PlaylistObj>();
+	private static Table tracksTable;
 
 	/**
 	 * @wbp.parser.entryPoint
+	 */
+	/**
+	 * @param args
 	 */
 	public static void open(String[] args) {
 		Display display = Display.getDefault();
@@ -63,14 +69,6 @@ public class MainWindow {
 		Color txtColorLight = SWTResourceManager.getColor(SWT.COLOR_WIDGET_LIGHT_SHADOW);
 
 		shlSpotifyPlaylistManager.setBackground(defaultColor);
-		shlSpotifyPlaylistManager.addShellListener(new ShellAdapter() {
-			@Override
-			public void shellClosed(ShellEvent e) {
-				if (iso == true) {
-					AuthHandeling.stopSpring();
-				}
-			}
-		});
 		shlSpotifyPlaylistManager.setSize(901, 647);
 		shlSpotifyPlaylistManager.setText("Spotify Playlist Manager");
 		shlSpotifyPlaylistManager.setLayout(new FormLayout());
@@ -108,19 +106,10 @@ public class MainWindow {
 
 		btnLogin.setText("Login");
 
-		btnLogin.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				iso = true;
-				btnLogin.setEnabled(false);
-				btnLogin.setBackground(new Color(0, 204, 0));
-				login(args);
-			}
-		});
-
 		CTabFolder tabFolder = new CTabFolder(shlSpotifyPlaylistManager, SWT.NO_FOCUS);
 		tabFolder.setHighlightEnabled(false);
 		tabFolder.setTabHeight(0);
+
 		FormData fd_tabFolder = new FormData();
 		fd_tabFolder.left = new FormAttachment(leftBar, 0);
 		fd_tabFolder.bottom = new FormAttachment(leftBar, 0, SWT.BOTTOM);
@@ -193,6 +182,52 @@ public class MainWindow {
 
 		tabFolder.setSelection(tbtmDefaulttblitm);
 
+		CTabItem tbtmTracksfromplaylist = new CTabItem(tabFolder, SWT.NONE);
+		tbtmTracksfromplaylist.setText("TracksFromPlaylist");
+
+		Composite playlistTracksComp = new Composite(tabFolder, SWT.NO_FOCUS);
+		playlistTracksComp.setBackground(SWTResourceManager.getColor(30, 30, 30));
+		tbtmTracksfromplaylist.setControl(playlistTracksComp);
+
+		Composite playlistTracksHeadingComp = new Composite(playlistTracksComp, SWT.NONE);
+		playlistTracksHeadingComp.setBackground(SWTResourceManager.getColor(30, 30, 30));
+		playlistTracksHeadingComp.setBounds(0, 0, 699, 37);
+
+		Label lblUsersPlaylistTracks = new Label(playlistTracksHeadingComp, SWT.NONE);
+		lblUsersPlaylistTracks.setText("(Insert Playlist Name Here) Tracks");
+		lblUsersPlaylistTracks.setForeground(SWTResourceManager.getColor(227, 227, 227));
+		lblUsersPlaylistTracks.setBackground(SWTResourceManager.getColor(30, 30, 30));
+		lblUsersPlaylistTracks.setAlignment(SWT.CENTER);
+		lblUsersPlaylistTracks.setBounds(10, 10, 679, 15);
+
+		tracksTable = new Table(playlistTracksComp, SWT.BORDER | SWT.FULL_SELECTION);
+		tracksTable.setHeaderVisible(false);
+		tracksTable.setForeground(SWTResourceManager.getColor(227, 227, 227));
+		tracksTable.setBackground(SWTResourceManager.getColor(50, 50, 50));
+		tracksTable.setBounds(0, 0, 699, 561);
+
+		TableColumn tblclmnTracks = new TableColumn(tracksTable, SWT.NONE);
+		tblclmnTracks.setWidth(678);
+		tblclmnTracks.setText("Playlists");
+
+		/*
+		 * 
+		 * This area contains listeners for everything
+		 * 
+		 */
+
+		// Login Button
+		btnLogin.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				iso = true;
+				btnLogin.setEnabled(false);
+				btnLogin.setBackground(new Color(0, 204, 0));
+				login(args);
+			}
+		});
+
+		// View Play lists
 		btnViewPlaylists.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -207,10 +242,41 @@ public class MainWindow {
 			@Override
 			public void handleEvent(Event event) {
 				event.height = imgAndBarScale;
-				System.out.println(event);
 			}
 
 		});
+
+		// See if something is double clicked in the patient table
+		playlistsTable.addSelectionListener(new SelectionListener() {
+
+			@Override
+			public void widgetDefaultSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+				TableItem[] select = playlistsTable.getSelection();
+				PlaylistObj p = (PlaylistObj) select[1].getData();
+				p.loadTracks();
+				tabFolder.setSelection(tbtmTracksfromplaylist);
+				buildTracksTable(p);
+			}
+
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+
+		// Turns off spring on exit if it has not already been turned off
+		shlSpotifyPlaylistManager.addShellListener(new ShellAdapter() {
+			@Override
+			public void shellClosed(ShellEvent e) {
+				if (iso == true) {
+					AuthHandeling.stopSpring();
+				}
+			}
+		});
+
+		// NOT IMPORTANT... ish
 
 		shlSpotifyPlaylistManager.open();
 		shlSpotifyPlaylistManager.layout();
@@ -229,9 +295,22 @@ public class MainWindow {
 
 			playlist.setImage(1, p.getPlaylistImg());
 			playlist.setText(1, p.getPlaylistName());
+			playlist.setData(p.getSelf());
+			System.out.println(playlist.getData());
 		}
 
 		System.out.println(playlists.size());
+
+	}
+
+	// Builds the table for the tracks. Could be used for alot.
+	public static void buildTracksTable(PlaylistObj p) {
+		tracksTable.removeAll();
+
+		for (Track tr : p.getTracks()) {
+			TableItem track = new TableItem(tracksTable, SWT.NONE);
+			track.setText(tr.getName());
+		}
 
 	}
 
@@ -252,11 +331,9 @@ public class MainWindow {
 				nti.setText(1, tmp);
 
 				System.out.println(nti.getText(1));
-				// playlistsTable.getColumn(1).pack();
 
-				// nti.dispose();
 				break;
-				// System.out.println("Added Image to:" + tia[i].getText(1));
+
 			}
 		}
 	}
