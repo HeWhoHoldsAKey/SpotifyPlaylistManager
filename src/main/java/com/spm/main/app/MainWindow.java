@@ -91,7 +91,8 @@ public class MainWindow {
 		fd_UserProfileComp.left = new FormAttachment(0);
 		UserProfileComp.setLayoutData(fd_UserProfileComp);
 		UserProfileComp.setBackground(new Color(25, 25, 25));
-
+		
+		//Tell the user to login
 		lblUserName = new Label(UserProfileComp, SWT.NONE);
 		lblUserName.setBackground(new Color(25, 25, 25));
 		lblUserName.setForeground(txtColorLight);
@@ -100,16 +101,18 @@ public class MainWindow {
 		lblUserName.setAlignment(SWT.CENTER);
 		lblUserName.setText("Login Below");
 		lblUserName.setVisible(false);
-
+		
+		//Creats a login button
 		btnLogin = new Button(UserProfileComp, SWT.NONE);
 		btnLogin.setBounds(0, 0, 184, 71);
-
 		btnLogin.setText("Login");
 
+		//Where all the pages are stored
 		CTabFolder tabFolder = new CTabFolder(shlSpotifyPlaylistManager, SWT.NO_FOCUS);
 		tabFolder.setHighlightEnabled(false);
 		tabFolder.setTabHeight(0);
 
+		//Form data for the pages
 		FormData fd_tabFolder = new FormData();
 		fd_tabFolder.left = new FormAttachment(leftBar, 0);
 		fd_tabFolder.bottom = new FormAttachment(leftBar, 0, SWT.BOTTOM);
@@ -119,10 +122,9 @@ public class MainWindow {
 		tabFolder.setSelectionBackground(
 				Display.getCurrent().getSystemColor(SWT.COLOR_TITLE_INACTIVE_BACKGROUND_GRADIENT));
 		tabFolder.setBackground(defaultColor);
-		// tabFolder.setVisible(false);
-
+		
+		//Creats a button so you can see the other pages and makes it look better
 		btnViewPlaylists = new Button(leftBar, SWT.NO_FOCUS | SWT.FLAT);
-
 		btnViewPlaylists.setBounds(0, 10, 184, 39);
 		btnViewPlaylists.setText("View Playlists");
 		btnViewPlaylists.setBackground(btnColor);
@@ -130,7 +132,8 @@ public class MainWindow {
 		btnViewPlaylists.setForeground(txtColorLight);
 		btnViewPlaylists.setEnabled(false);
 		btnViewPlaylists.setVisible(false);
-
+		
+		//Setting the layout for the playlist page
 		CTabItem tbtmPlaylists = new CTabItem(tabFolder, SWT.NONE);
 		tbtmPlaylists.setText("Playlists");
 
@@ -141,7 +144,8 @@ public class MainWindow {
 		Composite playlistsHeadingComp = new Composite(playlistsComp, SWT.NONE);
 		playlistsHeadingComp.setBounds(0, 0, 699, 37);
 		playlistsHeadingComp.setBackground(defaultColor);
-
+		
+		//Little lable to tell you are on the playlist page
 		Label lblUsersPlaylists = new Label(playlistsHeadingComp, SWT.NONE);
 		lblUsersPlaylists.setAlignment(SWT.CENTER);
 		lblUsersPlaylists.setForeground(txtColorLight);
@@ -165,7 +169,8 @@ public class MainWindow {
 		TableColumn tblclmnPlaylists = new TableColumn(playlistsTable, SWT.NONE);
 		tblclmnPlaylists.setText("Playlists");
 		tblclmnPlaylists.setWidth(678);
-
+		
+		//Main page here... why is it below i have no idea but it works
 		CTabItem tbtmDefaulttblitm = new CTabItem(tabFolder, SWT.NONE);
 		tbtmDefaulttblitm.setText("DefaultTBLITM");
 
@@ -181,7 +186,8 @@ public class MainWindow {
 		lblNewLabel.setText("HEY. LOG IN SO WE CAN GET SOME WORK DONE");
 
 		tabFolder.setSelection(tbtmDefaulttblitm);
-
+		
+		//Same thing as playlists but for the tracks inside the playlist
 		CTabItem tbtmTracksfromplaylist = new CTabItem(tabFolder, SWT.NONE);
 		tbtmTracksfromplaylist.setText("TracksFromPlaylist");
 
@@ -276,7 +282,7 @@ public class MainWindow {
 			}
 		});
 
-		// NOT IMPORTANT... ish
+		// NOT IMPORTANT... ish.. A loop inside a loop... to test things. why? Just because
 
 		shlSpotifyPlaylistManager.open();
 		shlSpotifyPlaylistManager.layout();
@@ -337,7 +343,8 @@ public class MainWindow {
 			}
 		}
 	}
-
+	
+	//Pain
 	static void buildPlaylists() {
 		playlists.clear();
 		for (PlaylistSimplified p : user.getUsersPlaylistsList()) {
@@ -347,20 +354,24 @@ public class MainWindow {
 		}
 		System.out.println(playlists.size());
 	}
-
+	
+	//Self explainitory
 	public static void addPlaylist(PlaylistObj p) {
 		playlists.add(p);
 	}
-
+	
+	//Well is it?
 	public static void isSpringOn(Boolean b) {
 		iso = b;
 	}
-
+	
+	//Also pain
 	public static void login(String[] args) {
 		AuthHandeling auth = new AuthHandeling();
 		auth.runAuthHandeling(args, SpotifyHdlr.getURI());
 	}
-
+	
+	//Well the user logged on so now do stuff...
 	public static void userLoggedIn() {
 		lblUserName.setText(user.getName());
 		lblUserName.getParent().layout();
@@ -369,7 +380,8 @@ public class MainWindow {
 		btnViewPlaylists.setEnabled(true);
 		btnViewPlaylists.setVisible(true);
 	}
-
+	
+	//Who is user?
 	public static void initUser() {
 		user = new UserObj();
 		System.out.println(user.getName());
