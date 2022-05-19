@@ -17,8 +17,8 @@ import se.michaelthelin.spotify.requests.authorization.authorization_code.Author
 
 public class SpotifyHdlr {
 	//Yeah so this is fun.. Oauth 2.0 authentication is great...
-	private final static String client_id = "f9c527b8e9c54d399a192f6dbb5fea0d";
-	private final static String clientSecret = "ef2dc527f7a64222af08276edbf079cd";
+	private final static String client_id = "Gotta take the code outta here for safety, can be very bad";
+	private final static String clientSecret = "Gotta take the code outta here for safety, can be very bad";
 	private static String code = "";
 	
 	//Callback stuff
