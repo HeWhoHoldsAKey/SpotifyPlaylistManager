@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(path = "login")
 public class Login {
-	
+	//The langing page that will redirect you straight to callback... Not too bad but was annoying
 	
 	@GetMapping
 	public ResponseEntity<Object> loginPage() {
