@@ -13,6 +13,7 @@ public class AuthHandeling {
 	static ConfigurableApplicationContext ctx;
 
 	public void runAuthHandeling(String[] args, URI uri) {
+		//funny story... WITHOUT THIS LINE OF CODE IT ASSUMES FOR WHAT EVER GOD FORSAKEN REASON THEY YOU DONT HAVE A MONITOR OR MOUSE OR ANYTHING... AND IT JUST BREAKS...
 		System.setProperty("java.awt.headless", "false");
 		AuthHandeling.uri = uri;
 		ctx = SpringApplication.run(AuthHandeling.class, args);
