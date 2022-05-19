@@ -32,7 +32,10 @@ import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistCoverImageReq
 import se.michaelthelin.spotify.requests.data.playlists.GetPlaylistsItemsRequest;
 import se.michaelthelin.spotify.requests.data.tracks.GetTrackRequest;
 
+//Extends thread because... multithreading. Why? because if you dont it will completely freeze for 180 seconds until it finishes.
+//Makes it nicer for the user
 public class PlaylistObj extends Thread {
+	//Pain
 	SpotifyApi sp = SpotifyHdlr.getSAPI();
 	PlaylistSimplified playlist;
 	Image[] playlistImagesApi;
@@ -44,7 +47,8 @@ public class PlaylistObj extends Thread {
 	ArrayList<Track> playlistTracks = new ArrayList<Track>();
 	int imgScale;
 	boolean tracksLoaded = false;
-
+	
+	//Also pain
 	TrackObj[] tracks;
 
 	public PlaylistObj(PlaylistSimplified p, int s) {
@@ -91,6 +95,7 @@ public class PlaylistObj extends Thread {
 				org.eclipse.swt.graphics.Image imagesTemp = null;
 
 				if (imgTemp != null) {
+					//also dont worry about this
 					if (imgTemp.getColorModel() instanceof DirectColorModel) {
 						System.out.println("Went into first Check Direct color mo0del");
 						DirectColorModel colorModel = (DirectColorModel) imgTemp.getColorModel();
@@ -111,6 +116,7 @@ public class PlaylistObj extends Thread {
 						}
 						imagesTemp = new org.eclipse.swt.graphics.Image(null, data);
 					} else if (imgTemp.getColorModel() instanceof IndexColorModel) {
+						//Yeah just... dont worry about this
 						System.out.println("Went into Second Check IndexColorModel");
 						IndexColorModel colorModel = (IndexColorModel) imgTemp.getColorModel();
 						int size = colorModel.getMapSize();
@@ -145,6 +151,7 @@ public class PlaylistObj extends Thread {
 						ComponentColorModel colorModel = (ComponentColorModel) imgTemp.getColorModel();
 						// ASSUMES: 3 BYTE BGR IMAGE TYPE
 						PaletteData palette = new PaletteData(0x0000FF, 0x00FF00, 0xFF0000);
+						//Why this? because this scales things. why? BECAUSE SWT HATES YOU AND EVERYTHING YOU DO
 						ImageData data = new ImageData(imgTemp.getWidth(), imgTemp.getHeight(),
 								colorModel.getPixelSize(), palette);
 						// data = data.scaledTo(imgScale -50, imgScale - 50);
@@ -188,6 +195,7 @@ public class PlaylistObj extends Thread {
 	}
 
 	public void loadTracks() {
+		//Pain... i... yeah its just pain
 		if (tracksLoaded) {
 			return;
 		} else {
