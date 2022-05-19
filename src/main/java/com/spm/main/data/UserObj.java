@@ -22,6 +22,7 @@ public class UserObj {
 	PlaylistSimplified[] playlistsList;
 	public UserObj() {
 		try {
+			//All we are doing is building the user. everything builds off the user...
 			user = currentUserProfileRequest.execute();
 			playlists = currentUsersPlaylistRequest.execute();
 			playlistsList = playlists.getItems();
