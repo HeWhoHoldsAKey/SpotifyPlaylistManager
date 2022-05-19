@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
 import com.spm.main.ota;
-
+//Yeah... this essentially is a web app. pretty cool. is it running on multiple threads so the gui dosnt lock up? no.
 @SpringBootApplication
 public class AuthHandeling {
 	static URI uri;
